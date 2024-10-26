@@ -52,5 +52,83 @@ This guide outlines the steps to deploy a static website on AWS using various se
    Install AWS CLI on the EC2 instance using:  
    ```bash
    sudo yum install aws-cli -y
+   Synchronize S3 Bucket with EC2
+Synchronize the contents of the S3 bucket with the EC2 instance's /var/www/html directory using:
+
+bash
+Copy code
+aws s3 ls s3://sample-website-aws-bucket
+Start the Web Server
+Start the server on the EC2 instance using:
+
+bash
+Copy code
+systemctl start httpd
+Enable Server on Boot
+Enable the server to start on boot with:
+
+bash
+Copy code
+systemctl enable httpd
+Create a Hosted Zone in Route 53
+Create a hosted zone in Route 53 for the domain name associated with the website.
+
+Update Domain Nameservers
+Update the nameservers of the domain's hosting website with the nameservers provided by AWS to direct traffic to AWS.
+
+Request SSL Certificate
+Request a certificate from ACM for the domain name studentgulmohurschool.online to enable HTTPS encryption.
+
+Request Wildcard SSL Certificate
+Request another certificate for *.studentgulmohurschool.online to include all subdomains.
+
+Create CNAME Record
+Create a CNAME record in Route 53 to map the domain to the load balancer's DNS name for better traffic management.
+
+Create Target Group
+Create a target group for managing traffic distribution.
+
+Create and Configure Load Balancer
+Create a load balancer and attach it to the target group. The ACM certificate should also be attached, and both HTTP and HTTPS listeners should be configured.
+
+Redirect HTTP to HTTPS
+Redirect HTTP requests to HTTPS for secure access.
+
+Add SSL Certificate for Subdomains
+Add the SSL certificate for subdomains to the HTTPS port to ensure secure connections for subdomains.
+
+Create Route 53 Records
+Create records in Route 53 for both the root domain and subdomains to distribute the load, choosing alias as Classic and Application Load Balancer.
+
+Access the Website
+Access the website using the root domain (studentgulmohurschool.online) and sub-domain (mail.studentgulmohurschool.online). Both connections should be secured.
+
+Create an Image for Auto Scaling Group
+Create an image of the EC2 instance where the web server is configured. A template should be launched from this image.
+
+Launch Template
+Create a new security group for the template, allowing HTTP, HTTPS, and SSH. An auto-scaling group should then be created from the template, selecting all availability zones and attaching it to the load balancer with the target group.
+
+Create an Auto Scaling Group
+Create an auto-scaling group with all availability zones and attach it to the load balancer.
+
+Set Scaling Policies
+Set the desired, minimum, and maximum capacity for the servers. Launch a new instance from the template, which will appear in the EC2 dashboard.
+
+Create CloudWatch Alarms
+Create CloudWatch alarms based on the CPU utilization metrics of the instances. If CPU utilization is >= 50%, new instances should be launched; if < 40%, instances should be terminated to meet the desired and minimum capacity.
+
+Attach Policies to Auto Scaling Group
+Create two dynamic policies in the auto-scaling group and attach them to the CloudWatch alarms.
+
+Monitor Auto Scaling
+Based on CPU utilization, the alarms should change from Insufficient data → OK → In-alarm state. New instances will be added and removed as per the CPU utilization.
+
+Problems Encountered
+The SSL certificate was initially issued only for *.studentgulmohurschool.online, covering all subdomains but not the root domain studentgulmohurschool.online.
+Troubleshooting
+Requested a new SSL certificate covering both the root domain and its subdomains. After obtaining the updated SSL certificate, the website became securely accessible via HTTPS, and HTTP requests were automatically redirected to HTTPS. An A-type record was created in Route 53 to associate both the root domain and subdomains with the alias as Application and Classic Load Balancer.
+Conclusion
+By following these detailed steps, you can deploy a static website on AWS, ensuring it is secure, scalable, and efficiently managed. This comprehensive guide should help you navigate through the process seamlessly.
 
 
