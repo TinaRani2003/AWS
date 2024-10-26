@@ -73,3 +73,7 @@ This guide outlines the steps to deploy a static website on AWS using various se
 ### 9. Install AWS CLI
 ```bash
 sudo yum install aws-cli -y
+10. Synchronize S3 Bucket with EC2
+Synchronize the contents of the S3 bucket with the EC2 instance's /var/www/html directory using:
+aws s3 ls s3://sample-website-aws-bucket
+
